@@ -26,7 +26,7 @@ GAN are nerual neetworks that are trained in an adversarial manner to generate d
 
 Examples: Classification problems.
 
-* Generative model: A generative models <b>G</b> to be trained on training data <b>X</b> sampled from some true distribution <b>D</b> is the one which, given some standard random distribution <b>Z</b> produces a distribution <b>D'</b> which is close to <b>D</b> according to some closeness metric. 
+* Generative model: A generative models <b> $ \theta $ </b> to be trained on training data <b>X</b> sampled from some true distribution <b>D</b> is the one which, given some standard random distribution <b>Z</b> produces a distribution <b>  </b> which is close to <b>D</b> according to some closeness metric. 
 
 ![alt text](https://openai.com/content/images/2017/02/gen_models_diag_2.svg)
 <i>Source: OpenAI blog</i>
