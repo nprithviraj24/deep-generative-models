@@ -40,6 +40,6 @@ Examples: Classification problems.
 
 ## References
 
-- ![NYU](https://cs.nyu.edu/courses/spring18/CSCI-GA.3033-022/)
-- ![Deep Learning Drizzle](https://deep-learning-drizzle.github.io/index.html)
-- ![Stanford](https://deepgenerativemodels.github.io/syllabus.html)
+- [NYU](https://cs.nyu.edu/courses/spring18/CSCI-GA.3033-022/)
+- [Deep Learning Drizzle](https://deep-learning-drizzle.github.io/index.html)
+- [Stanford](https://deepgenerativemodels.github.io/syllabus.html)
