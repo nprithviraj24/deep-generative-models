@@ -1,4 +1,10 @@
-# Generative Adversarial Networks (GAN)
+# Deep Generative Models
+
+ - Autoregressive models.
+ - Variational Autoencoders
+ - Generative Adversarial Networks
+
+## Generative Adversarial Networks (GAN)
 My understanding of different GANs. 
 
 ## NOTE: 
