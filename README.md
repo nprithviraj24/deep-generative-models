@@ -36,3 +36,10 @@ Examples: Classification problems.
 
 ![alt text](https://openai.com/content/images/2017/02/gen_models_diag_2.svg)
 <i>Source: OpenAI blog</i>
+
+
+## References
+
+- ![NYU](https://cs.nyu.edu/courses/spring18/CSCI-GA.3033-022/)
+- ![Deep Learning Drizzle](https://deep-learning-drizzle.github.io/index.html)
+- ![Stanford](https://deepgenerativemodels.github.io/syllabus.html)
