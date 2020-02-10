@@ -25,7 +25,7 @@ A generative model is said to generate a probability distribution that mimicks a
 A networks can be deep neural networks, CNN, or simple vanilla networks.
 
 
-GAN are nerual neetworks that are trained in an adversarial manner to generate data mimicking some distribution.
+GAN are neural networks that are trained in an adversarial manner to generate data mimicking some distribution.
 
 ### Two classes of models in machine learning
 * Discriminative model: It is the one that discriminiates between two different classes of data.
@@ -36,6 +36,13 @@ Examples: Classification problems.
 
 ![alt text](https://openai.com/content/images/2017/02/gen_models_diag_2.svg)
 <i>Source: OpenAI blog</i>
+
+
+## Face Hallucination
+This repo is built on grounds of developing different generative models to perform super-resolution on face images.
+
+
+
 
 
 ## References
