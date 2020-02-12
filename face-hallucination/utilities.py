@@ -1,4 +1,7 @@
 import math
+from torch import nn
+import numpy as np
+
 
 def convert_size(size_bytes):
    if size_bytes == 0:
@@ -25,3 +28,8 @@ def imshow(img):
 def recover_image(img):
     return ((img * np.array([0.229, 0.224, 0.225]).reshape((1, 3, 1, 1)) + np.array([0.485, 0.456, 0.406]).reshape((1, 3, 1, 1)) ).transpose(0, 2, 3, 1) * 255. ).clip(0, 255).astype(np.uint8)
 
+
+def downsample4x(x):
+    #using avgpooling
+    avg = nn.AvgPool2d(kernel_size=2, stride=2)
+    return avg(avg(x))
