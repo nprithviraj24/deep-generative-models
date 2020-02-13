@@ -1,7 +1,7 @@
 import math
 import torch
 from torch import nn
-
+from specNorm.spectral_normalization import SpectralNorm
 
 class Discriminator(nn.Module):
     def __init__(self):
@@ -14,7 +14,7 @@ class Discriminator(nn.Module):
         self.block4 = DResBlock(64)
         self.block5 = DResBlock(64)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc = nn.Linear(16, 10)
+        self.fc = SpectralNorm(nn.Linear(16, 10))
 
     def forward(self, x):
         
@@ -39,9 +39,9 @@ class Discriminator(nn.Module):
 class DResBlock(nn.Module):
     def __init__(self, channels):
         super(DResBlock, self).__init__()
-        self.conv1 = nn.Conv2d(channels, channels, kernel_size=3, padding=1)
+        self.conv1 = SpectralNorm(nn.Conv2d(channels, channels, kernel_size=3, padding=1))
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(channels, channels, kernel_size=3, padding=1)
+        self.conv2 = SpectralNorm(nn.Conv2d(channels, channels, kernel_size=3, padding=1))
         
     def forward(self, x):
         residual = self.relu(x)
