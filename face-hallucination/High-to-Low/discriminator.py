@@ -14,7 +14,8 @@ class Discriminator(nn.Module):
         self.block4 = DResBlock(64)
         self.block5 = DResBlock(64)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc = SpectralNorm(nn.Linear(16, 10))
+        self.fc1 = SpectralNorm(nn.Linear(16, 10))
+        self.fc2 = SpectralNorm(nn.Linear(10, 1))
 
     def forward(self, x):
         
@@ -31,7 +32,8 @@ class Discriminator(nn.Module):
         out = self.block5(b4)
 
         out = out.view(out.size(0), -1)
-        out = self.fc(out)
+        out = self.fc1(out)
+        out = self.fc2(out)
         
         return torch.sigmoid(out)
 

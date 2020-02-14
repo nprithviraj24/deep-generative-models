@@ -19,7 +19,9 @@ class Discriminator(nn.Module):
         self.block4 = DResBlock(channels)
         self.block5 = DResBlock(channels)
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)
-        self.fc = SpectralNorm(nn.Linear(16, 10))
+        self.fc1 = SpectralNorm(nn.Linear(16, 10))
+        self.fc2 = SpectralNorm(nn.Linear(10, 1))
+
 
     def forward(self, x):
         x = self.conv(x)
@@ -40,7 +42,8 @@ class Discriminator(nn.Module):
         # print(out.shape)
         out = out.view(out.size(0), -1)
         # print(out.shape)
-        out = self.fc(out)
+        out = self.fc1(out)
+        out = self.fc2(out)
         
         return torch.sigmoid(out)
 
@@ -58,6 +61,7 @@ class DResBlock(nn.Module):
         residual = self.relu(residual)
         residual = self.conv2(residual)
         return x + residual
+        
 # cuda = torch.device("cuda:0")
 # gen = Discriminator().to(cuda)
 # # print(gen.zeroPhase.weight)
