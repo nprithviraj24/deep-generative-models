@@ -44,21 +44,21 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--batch_size', type=int, default=8)
-parser.add_argument('--lr', type=float, default=1e-4)
+parser.add_argument('--lr', type=float, default=1e-4) ## LEARNING RATE
 parser.add_argument('--tensorboard', type=str, default='runs/')
 parser.add_argument('--pixelWeight', type=float, default=1.00)
 parser.add_argument('--ganWeight', type=float, default=0.05)
-
-
+parser.add_argument('--n_epochs', type=int, default=200)
+parser.add_argument('--image_dir', type=str)
 # parser.add_argument('--loss', type=str, default='hinge')
 # parser.add_argument('--checkpoint_dir', type=str, default='checkpoints')
-
-# parser.add_argument('--model', type=str, default='resnet')
-
 args = parser.parse_args()
 
-#number of updates to discriminator for every update to generator 
-disc_iters = 5
+## ------------- DATALOADERS -------------##
+xTrain, xTest = dataloader.get_data_loader(image_type='hr', image_dir=args.image_dir, batch_size=args.batch_size)
+yTrain, yTest = dataloader.get_data_loader(image_type='lr', image_dir=args.image_dir, batch_size=args.batch_size)
+
+## ---------------------------------------##
 
 # discriminator = torch.nn.DataParallel(Discriminator()).cuda() # TODO: try out multi-gpu training
 
@@ -88,9 +88,11 @@ scheduler_d = optim.lr_scheduler.ExponentialLR(optim_genH2L, gamma=0.99)
 scheduler_d = optim.lr_scheduler.ExponentialLR(optim_discL2H, gamma=0.99)
 scheduler_d = optim.lr_scheduler.ExponentialLR(optim_genL2H, gamma=0.99)
 
-
+#labels
 real = 1
 fake = 0
+#number of updates to discriminator for every update to generator 
+disc_iters = 5
 
 def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader_Y,
                   n_epochs=200):
@@ -228,3 +230,7 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
       
     return losses
 
+
+ # keep epochs small when testing if a model first works
+
+losses = training_loop(xTrain, yTrain, xTest, yTest, n_epochs=args.n_epochs)

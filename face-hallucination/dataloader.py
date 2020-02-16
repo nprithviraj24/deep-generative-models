@@ -72,7 +72,7 @@ class NoiseAndBlur():
 
 
 
-def get_data_loader(image_type, image_dir='lrtohr', image_size=64, batch_size=batch_size, num_workers=0):
+def get_data_loader(image_type, image_dir, image_size=64, batch_size, num_workers=0):
     """Returns training and test data loaders for a given image type
     """
 
@@ -85,35 +85,31 @@ def get_data_loader(image_type, image_dir='lrtohr', image_size=64, batch_size=ba
                                     ])
     # get training and test directories
     # resize and normalize the images
-    transform2 = transforms.Compose([transforms.Resize((256,256)), # resize to 128x128
+    transform2 = transforms.Compose([transforms.Resize((64,64)), # resize to 128x128
                                     transforms.ToTensor()
                                     # , tensor_normalizer()
                                     ])
     
-    transform0 = transforms.Compose([transforms.Resize((image_size, image_size))
+    transform0 = transforms.Compose([transforms.Resize((16,16))
                                     ,transforms.ToTensor()
                                     # ,_gaussian_blur()
                                     # ,NoiseAndBlur(0.1, 0.05, image_size = image_size, applyBlur=augment_Gaussian_blur, Blur_sigma=1, Blur_ker_size = 4)
                                     ,transforms.RandomErasing(p=0.5, scale=(0.00002, 0.001), ratio=(0.0001, 0.0006), value=0, inplace=False) 
                                      # , tensor_normalizer()
-                                    ])
-
-    
+                                    ])    
 
     if image_type == 'lr':
-        image_path = './' + image_dir
-        train_path = os.path.join(image_path, image_type)
-        test_path = os.path.join(image_path, 'test_{}'.format(image_type))
-        # define datasets using ImageFolder
-        train_dataset = datasets.ImageFolder(train_path, transform1)
-        test_dataset = datasets.ImageFolder(test_path, transform1)
-
+        image_path = image_dir+'/DIV2K/'
+        dataset = datasets.ImageFolder(image_path, transform0)
+        n = len(dataset)
+        train_set, val_set = torch.utils.data.random_split(dataset, [1600, n-1600])
+        
         # create and return DataLoaders
-        train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
-        test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
+        train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
+        test_loader = DataLoader(dataset=val_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+    
     if image_type == 'hr':
-        image_path = './' + image_dir
+        image_path = image_dir + '/lrtohr/'
         train_path = os.path.join(image_path, image_type)
         test_path = os.path.join(image_path, 'test_{}'.format(image_type))
         # define datasets using ImageFolder
@@ -123,23 +119,6 @@ def get_data_loader(image_type, image_dir='lrtohr', image_size=64, batch_size=ba
             # create and return DataLoaders
         train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
         test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
-
-    if image_type == 'div2k':
-        path = '/content/drive/My Drive/Datasets/SR/' + image_dir
-        train_path = os.path.join(path, 'train')
-        # test_path = os.path.join(image_path, 'test_{}'.format(image_type))
-        # define datasets using ImageFolder
-        dataset = datasets.ImageFolder(path, transform0)
-        n = len(dataset)
-        # test_dataset = datasets.ImageFolder(test_path, transform2)
-
-            # create and return DataLoaders
-        # data_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
-        train_set, val_set = torch.utils.data.random_split(dataset, [1600, n-1600])
-        train_loader = DataLoader(dataset=train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, drop_last=True)
-        test_loader = DataLoader(dataset=val_set, batch_size=batch_size, num_workers=num_workers, drop_last=True)
-        
         
 
     return train_loader, test_loader
