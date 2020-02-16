@@ -89,8 +89,8 @@ class Discriminator(nn.Module):
         self.fc2 = SpectralNorm(nn.Linear(10, 1))
 
     def forward(self, x):
-        
-        b0 = self.block0(x)
+        conv = nn.Conv2d(3,64, kernel_size=3, padding=1)
+        b0 = self.block0(conv)
         b1 = self.block1(b0)
         b2 = self.block2(b1)
         
