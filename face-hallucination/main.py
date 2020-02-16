@@ -4,6 +4,8 @@ import numpy as np
 import matplotlib
 import os
 
+#import utilities
+import utilities as utility
 
 #importing Generator AND Discriminator for high-to-low
 from High-to-Low import Generator as G_H2L  
@@ -118,11 +120,11 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
       runningDY_loss = 0
       LOG_INTERVAL = 25
 
-      mbps = 0 #mini batches per epoch
+      bn = 0 #mini batches per epoch
 
       for batch_id, (images_X, _) in tqdm_notebook(enumerate(dataloader_X), total=len(dataloader_X)):
         #  with torch.no_grad():
-           mbps += 1
+           bn += 1
            images_Y, a = next(iter(dataloader_Y))
            # move images to GPU if available (otherwise stay on CPU)
            
@@ -168,35 +170,42 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
            fakeX = l2h_g(fakeY)
            fakeX_d = l2h_d(fakeX)
            ganLoss = LossF.GANloss( real=l2h_d(images_X), fake=fakeX_d )
-           pixelLoss = LossF.pixelLoss(real=images_Y, fake=fakeX)
+           pixelLoss = LossF.pixelLoss(real=images_X, fake=fakeX)
             
            lossH2L = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
 
            lossH2L.backward()
            optim_genH2L.step()
-           del fakeY_d
-
-
-
+           del fakeX_d, fakeX, fakeY
            
 
-           if mbps % LOG_INTERVAL == 0:  
+           if bn % LOG_INTERVAL == 0:  
              with torch.no_grad():
-              G_XtoY.eval() # set generators to eval mode for sample generation
-              fakeY = G_XtoY(fixed_X.to(device))
-              imshow(torchvision.utils.make_grid(fixed_X.cpu()))
-              imshow(torchvision.utils.make_grid(fakeY.cpu()))
-              G_XtoY.train()          
-              print('Mini-batch no: {}, at epoch [{:3d}/{:3d}] | d_X_loss: {:6.4f} | d_Y_loss: {:6.4f} | g_total_loss: {:6.4f}'.format(mbps, epoch, n_epochs,  runningDX_loss/mbps ,  runningDY_loss/mbps,  runningG_loss/mbps ))
+              h2l_g.eval() # set generators to eval mode for sample generation
+              fakeY = h2l_g(fixed_X.to(device))
+              utility.imshow(torchvision.utils.make_grid(fakeY.cpu()))
+              # utility.imshow(torchvision.utils.make_grid(fakeY.cpu()))
+              h2l_g.train() 
+
+              l2h_g.eval() # set generators to eval mode for sample generation
+              fakeX = l2h_g(fakeY.to(device))
+              utility.imshow(torchvision.utils.make_grid(fakeX.cpu()))
+              l2h_g.train()          
+              # print('Mini-batch no: {}, at epoch [{:3d}/{:3d}] | d_X_loss: {:6.4f} | d_Y_loss: {:6.4f} | g_total_loss: {:6.4f}'.format(mbps, epoch, n_epochs,  runningDX_loss/mbps ,  runningDY_loss/mbps,  runningG_loss/mbps ))
 
       with torch.no_grad():
-        G_XtoY.eval() # set generators to eval mode for sample generation
-        fakeY = G_XtoY(fixed_X.to(device))
-        imshow(torchvision.utils.make_grid(fixed_X.cpu()))
-        imshow(torchvision.utils.make_grid(fakeY.cpu()))
-        G_XtoY.train()
+        h2l_g.eval() # set generators to eval mode for sample generation
+        fakeY = h2l_g(fixed_X.to(device))
+        utility.imshow(torchvision.utils.make_grid(fakeY.cpu()))
+              # utility.imshow(torchvision.utils.make_grid(fakeY.cpu()))
+        h2l_g.train() 
+
+        l2h_g.eval() # set generators to eval mode for sample generation
+        fakeX = l2h_g(fakeY.to(device))
+        utility.imshow(torchvision.utils.make_grid(fakeX.cpu()))
+        l2h_g.train()  
         # print("Epoch loss:  ", epochG_loss/)
-      losses.append((runningDX_loss/mbps, runningDY_loss/mbps, runningG_loss/mbps))
+      losses.append((runningDX_loss/bn, runningDY_loss/bn, runningG_loss/bn))
       print('Epoch [{:5d}/{:5d}] | d_X_loss: {:6.4f} | d_Y_loss: {:6.4f} | g_total_loss: {:6.4f}'.format(epoch, n_epochs, runningDX_loss/mbps ,  runningDY_loss/mbps,  runningG_loss/mbps ))
               
       

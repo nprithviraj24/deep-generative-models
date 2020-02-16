@@ -14,7 +14,7 @@ def fakeHingeLoss(x):
         return -(x+1)
 
 def GANloss(real=X, fake=fX):
-    assert X.shape[0] == fX.shape[0]
+    assert X.shape[0] == fX.shape[0] # same batch size
     for i in range(X.shape[0]):
         r1 += min(0, X[i]-1 )
         r2 += min(0, -  fX[i]-1 )
