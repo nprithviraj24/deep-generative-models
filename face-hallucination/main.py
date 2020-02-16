@@ -27,6 +27,8 @@ import training-loop
 #torch
 import torch
 from torch import nn
+import torch.optim as optim
+from torch.optim.lr_scheduler import ExponentialLR
 
 
 
@@ -114,14 +116,13 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
     # n_epochs = 2
     for epoch in range(pretrain_epoch, n_epochs+1):
 
-      epochG_loss = 0
-      runningG_loss = 0
-      runningDX_loss = 0
-      runningDY_loss = 0
-      LOG_INTERVAL = 25
+      lowres=0
+      highres=0
+      lowresD =0
+      highresD =0
 
       bn = 0 #mini batches per epoch
-
+      firstbn = True
       for batch_id, (images_X, _) in tqdm_notebook(enumerate(dataloader_X), total=len(dataloader_X)):
         #  with torch.no_grad():
            bn += 1
@@ -132,7 +133,9 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
            images_Y = images_Y.to(device)
           
           #5:1 ratio
-          # discriminator updates  
+          # discriminator updates
+           d1 = 0
+           d2 = 0  
            for _ in range(disc_iters):
                 
                 real_label = torch.full((args.batch_size,), real, device=device)
@@ -142,11 +145,16 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
                 discH2L_loss = nn.BCELoss()( h2l_d(images_Y), real_label).mean() + nn.BCELoss()(h2l_d(h2l_g(images_X)), fake_label).mean()
                 discH2L_loss.backward()
                 optim_discH2L.step()
+                d1 += discH2L_loss
 
                 optim_discL2H.zero_grad()
                 discL2H_loss = nn.BCELoss()( l2h_d(images_X), real_label).mean() + nn.BCELoss()(l2h_d(l2h_g(images_Y)), fake_label).mean()
                 discL2H_loss.backward()
                 optim_discL2H.step()
+                d2 += discL2H_loss
+          
+           lowresD += d1/disc_iters
+           highresD += d2/disc_iters
 
 #generator updates
           
@@ -156,10 +164,10 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
            fakeY = h2l_g(images_X)
            fakeY_d = h2l_d(fakeY)
            ganLoss = LossF.GANloss( real=h2l_d(images_Y), fake=fakeY_d )
-           pixelLoss = LossF.pixelLoss(real=images_Y, fake=fakeY)
+           pixelLoss = LossF.pixelLoss(real=images_X, fake=utility.downsample4x(fakeY))
             
            lossH2L = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
-
+           lowres += lossH2L
            lossH2L.backward()
            optim_genH2L.step()
            del fakeY_d
@@ -172,14 +180,22 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
            ganLoss = LossF.GANloss( real=l2h_d(images_X), fake=fakeX_d )
            pixelLoss = LossF.pixelLoss(real=images_X, fake=fakeX)
             
-           lossH2L = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
-
+           lossL2H = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
+           highres +=lossL2H
+           
            lossH2L.backward()
            optim_genH2L.step()
            del fakeX_d, fakeX, fakeY
            
 
-           if bn % LOG_INTERVAL == 0:  
+           if bn % LOG_INTERVAL == 0:
+             if firstbn:
+               ld = lowresD; hd = highresD; lg = lowres; hg=highres
+               firstbn = False
+             else:
+               ld = lowresD-ld; hd = highresD; lg = lowres; hg=highres
+
+             print('Mini-batch no: {}, at epoch [{:3d}/{:3d}] | D-low: {:6.4f} | D-high: {:6.4f}'.format(bn, epoch, n_epochs,  ld/bn , hd/bn ), end=' ')  
              with torch.no_grad():
               h2l_g.eval() # set generators to eval mode for sample generation
               fakeY = h2l_g(fixed_X.to(device))
@@ -191,7 +207,7 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
               fakeX = l2h_g(fakeY.to(device))
               utility.imshow(torchvision.utils.make_grid(fakeX.cpu()))
               l2h_g.train()          
-              # print('Mini-batch no: {}, at epoch [{:3d}/{:3d}] | d_X_loss: {:6.4f} | d_Y_loss: {:6.4f} | g_total_loss: {:6.4f}'.format(mbps, epoch, n_epochs,  runningDX_loss/mbps ,  runningDY_loss/mbps,  runningG_loss/mbps ))
+              print('high->low: {:6.4f},  low->high: {:6.4f}'.format(lg/bn, hg/bn))
 
       with torch.no_grad():
         h2l_g.eval() # set generators to eval mode for sample generation
@@ -205,9 +221,10 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
         utility.imshow(torchvision.utils.make_grid(fakeX.cpu()))
         l2h_g.train()  
         # print("Epoch loss:  ", epochG_loss/)
-      losses.append((runningDX_loss/bn, runningDY_loss/bn, runningG_loss/bn))
-      print('Epoch [{:5d}/{:5d}] | d_X_loss: {:6.4f} | d_Y_loss: {:6.4f} | g_total_loss: {:6.4f}'.format(epoch, n_epochs, runningDX_loss/mbps ,  runningDY_loss/mbps,  runningG_loss/mbps ))
-              
+      losses.append((lowresD/bn, highresD/bn, lowres/bn, highres/D))
+      print('Epoch [{:5d}/{:5d}] | D-low: {:6.4f} | D-high: {:6.4f} | low->high: {:6.4f} | high->low: {:6.4f}' .format(epoch, n_epochs, lowresD/bn ,  highresD/bn,  lowres/bn, highres/bn ))
+      scheduler_d.step()
+      scheduler_g.step()        
       
     return losses
 
