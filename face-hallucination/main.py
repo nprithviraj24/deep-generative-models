@@ -31,7 +31,7 @@ import torch.optim as optim
 from torch.optim.lr_scheduler import ExponentialLR
 
 
-
+from tqdm import tqdm_notebook
 import time
 import pylab as pl
 from IPython import display
@@ -62,11 +62,11 @@ yTrain, yTest = dataloader.get_data_loader(image_type='lr', image_dir=args.image
 
 # discriminator = torch.nn.DataParallel(Discriminator()).cuda() # TODO: try out multi-gpu training
 
-h2l_g = G_H2L().to(device)
-h2l_d = D_H2L().to(device)
+h2l_g=G_H2L.Generator(device=None).to(device)
+h2l_d = D_H2L.Discriminator().to(device)
 
-l2h_d = D_L2H().to(device)
-l2h_g = G_L2H().to(device)
+l2h_d = D_L2H.Discriminator().to(device)
+l2h_g = G_L2H.GEN_DEEP().to(device)
 l2h_g.load_state_dict(torch.load('model.pkl'))
 # net_G_low2high = net_G_low2high.eval()
 
@@ -87,6 +87,9 @@ scheduler_d = optim.lr_scheduler.ExponentialLR(optim_discH2L, gamma=0.99)
 scheduler_d = optim.lr_scheduler.ExponentialLR(optim_genH2L, gamma=0.99)
 scheduler_d = optim.lr_scheduler.ExponentialLR(optim_discL2H, gamma=0.99)
 scheduler_d = optim.lr_scheduler.ExponentialLR(optim_genL2H, gamma=0.99)
+
+#pretrain epochs
+pretrain_epoch=0
 
 #labels
 real = 1
@@ -165,8 +168,8 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
 
            fakeY = h2l_g(images_X)
            fakeY_d = h2l_d(fakeY)
-           ganLoss = LossF.GANloss( real=h2l_d(images_Y), fake=fakeY_d )
-           pixelLoss = LossF.pixelLoss(real=images_X, fake=utility.downsample4x(fakeY))
+           ganLoss = LossF.GANloss( h2l_d(images_Y), fakeY_d )  #real, fake
+           pixelLoss = LossF.pixelLoss(images_X, utility.downsample4x(fakeY))
             
            lossH2L = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
            lowres += lossH2L
@@ -179,8 +182,8 @@ def training_loop(dataloader_X, dataloader_Y, test_dataloader_X, test_dataloader
 
            fakeX = l2h_g(fakeY)
            fakeX_d = l2h_d(fakeX)
-           ganLoss = LossF.GANloss( real=l2h_d(images_X), fake=fakeX_d )
-           pixelLoss = LossF.pixelLoss(real=images_X, fake=fakeX)
+           ganLoss = LossF.GANloss( l2h_d(images_X), fakeX_d )
+           pixelLoss = LossF.pixelLoss(images_X, fakeX)
             
            lossL2H = args.ganWeight*ganLoss + args.pixelWeight*pixelLoss
            highres +=lossL2H

@@ -1,3 +1,4 @@
+import os
 import math
 import torch
 from torch.utils.data import DataLoader
@@ -72,10 +73,10 @@ class NoiseAndBlur():
 
 
 
-def get_data_loader(image_type, image_dir, image_size=64, batch_size, num_workers=0):
+def get_data_loader(image_type, image_dir, batch_size):
     """Returns training and test data loaders for a given image type
     """
-
+    num_workers=0
     # resize and normalize the images
     transform1 = transforms.Compose([transforms.Resize((64, 64)) # resize to 128x128
                                     ,transforms.ToTensor()
