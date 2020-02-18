@@ -90,11 +90,11 @@ class Discriminator(nn.Module):
 
     def forward(self, x):
         conv = nn.Conv2d(3,64, kernel_size=3, padding=1)
-        b0 = self.block0(conv)
+        b0 = self.block0(conv(x))
         b1 = self.block1(b0)
         b2 = self.block2(b1)
         
-        b3 = self.block3(b2)
+        b3 = self.block3(b2 )
         b3 = self.pool(b3)
 
         b4 = self.block4(b3)
