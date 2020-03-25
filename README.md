@@ -5,12 +5,10 @@
  - Generative Adversarial Networks
 
 ## Generative Adversarial Networks (GAN)
-My understanding of different GANs. 
+#### Prerequisites 
+GAN are CNN and basic machine learning concepts.
 
-## NOTE: 
-Prerequisite for GAN are CNN and basic machine learning concepts.
-
-## Definition
+### Definition
 By the name itself GAN doesn't giveaway the meaning of what it does. So to understand better, let's breakdown what comprises GAN.
 #### Generative
 A generative model is said to generate a probability distribution that mimicks an original probability distribution.
@@ -18,12 +16,10 @@ A generative model is said to generate a probability distribution that mimicks a
 #### Adversarial
 <i>Literal definition:</i> Conflict or opposition.
 
-
 <i>In context of GAN:</i> GANs are comprised of two deep neural networks that are competing one against each other.
 
 #### Networks
 A networks can be deep neural networks, CNN, or simple vanilla networks.
-
 
 GAN are neural networks that are trained in an adversarial manner to generate data mimicking some distribution.
 
@@ -38,11 +34,12 @@ Examples: Classification problems.
 <i>Source: OpenAI blog</i>
 
 
-## Face Hallucination
-This repo is built on grounds of developing different generative models to perform super-resolution on face images.
+### Face Hallucination
+##### This repo is built on grounds of developing different generative models to perform super-resolution (SR) on face images with different domain.
 
-
-
+1. [To learn image super-resolution, use a GAN to learn how to do image degradation first](https://arxiv.org/pdf/1807.11458.pdf)
+2. CycleGAN with EDSR. [CycleGAN](https://junyanz.github.io/CycleGAN/) and [EDSR](https://arxiv.org/pdf/1707.02921.pdf)
+3. Style basedVAE for Real-World SR. [StyleVAE + SR Network](https://arxiv.org/abs/1912.10227)
 
 
 ## References
