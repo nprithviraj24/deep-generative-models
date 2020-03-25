@@ -1,4 +1,47 @@
-### Helper:
+### Helper
+
+#### Contents
+
+- Directory structure of Dataset
+- Discriminator(s)
+- Generator(s)
+- TODOs
+- Loss functions
+
+#### Directory Structure
+
+```
+Dataset 
+└───hr
+│   └───hr
+│       │   image1.png
+│       │   image2.png
+│       │   ...
+│   
+└───lr
+│   └───lr
+│       │   lr_image1.png
+│       │   lr_image2.png
+│       │   ...
+└───test_hr
+│   └───test_hr
+│       │   image1.png
+│       │   image2.png
+│       │   ...
+│   
+└───test_lr
+│   └───test_lr
+│       │   lr_image1.png
+│       │   lr_image2.png
+│       │   ...
+
+## Note: Following dataset is from different domain.
+└───DIV2K
+│   └───train
+│       │   lr_image1.png
+│       │   lr_image2.png
+│       │   ...
+```
 
 #### Discriminators have two variants:
 

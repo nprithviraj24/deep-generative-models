@@ -5,6 +5,13 @@
       <paths name="root@asdf:4705">
         <serverdata>
           <mappings>
+            <mapping deploy="/tmp/face-hallucination" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="root@asdf:4705 (1)">
+        <serverdata>
+          <mappings>
             <mapping deploy="/tmp/face-hallucination" local="$PROJECT_DIR$" />
           </mappings>
         </serverdata>
