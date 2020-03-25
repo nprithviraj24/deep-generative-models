@@ -33,15 +33,6 @@ Examples: Classification problems.
 ![alt text](https://openai.com/content/images/2017/02/gen_models_diag_2.svg)
 <i>Source: OpenAI blog</i>
 
-
-### Face Hallucination
-##### This repo is built on grounds of developing different generative models to perform super-resolution (SR) on face images with different domain.
-
-1. Image-Degrade: [To learn image super-resolution, use a GAN to learn how to do image degradation first](https://arxiv.org/pdf/1807.11458.pdf)
-2. CycleGAN with EDSR. [CycleGAN](https://junyanz.github.io/CycleGAN/) and [EDSR](https://arxiv.org/pdf/1707.02921.pdf)
-3. StyleVAE: Style basedVAE for Real-World SR. [StyleVAE + SR Network](https://arxiv.org/abs/1912.10227)
-
-
 ## References
 
 - [NYU](https://cs.nyu.edu/courses/spring18/CSCI-GA.3033-022/)
